@@ -36,3 +36,24 @@ exports.jwtPassport = passport.use(
 );
 
 exports.verifyUser = passport.authenticate("jwt", { session: false });
+
+exports.verifyAdmin = function (req, res, next) {
+  User.findOne({
+    _id: req.user._id,
+  })
+    .then(
+      (user) => {
+        if (user.admin) {
+          return next();
+        } else {
+          err = new Error(
+            "Sorry but you are not authorized to perform this operation, please contact an administrator"
+          );
+          err.status = 403;
+          return next(err);
+        }
+      },
+      (err) => next(err)
+    )
+    .catch((err) => next(err));
+};
